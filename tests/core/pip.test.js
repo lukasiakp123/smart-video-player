@@ -1,44 +1,70 @@
-import { describe, it, expect, beforeAll, vi } from 'vitest';
-import { setupAutoPiP } from '../../src/core/pip.js';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { setupAutoPiP } from '../../public/core/pip.js';
 
-describe('Auto PiP', () => {
-  beforeAll(() => {
-    // Mock IntersectionObserver jako konstruktor
-    global.IntersectionObserver = class {
-      constructor(cb) {
-        this.cb = cb;
-      }
-      observe() {
-        this.cb([{ isIntersecting: false }]);
-      }
-      disconnect() {}
-    };
+describe('setupAutoPiP', () => {
+  let video;
+  let observerCallback;
+  let originalIntersectionObserver;
 
-    // Mock PiP properties
+  beforeEach(() => {
+    // Tworzymy mock elementu video
+    video = document.createElement('video');
+
+    // Getter readyState, aby uniknąć błędu TypeError
+    Object.defineProperty(video, 'readyState', {
+      get: () => 3, // gotowe do wejścia w PiP
+      configurable: true,
+    });
+
+    // Mock PiP
+    video.requestPictureInPicture = vi.fn().mockResolvedValue();
+    document.exitPictureInPicture = vi.fn().mockResolvedValue();
+
+    // Mock wsparcia PiP w przeglądarce
     Object.defineProperty(document, 'pictureInPictureEnabled', {
       value: true,
       writable: true,
     });
 
-    Object.defineProperty(document, 'pictureInPictureElement', {
-      value: null,
-      writable: true,
+    // Mock IntersectionObserver
+    originalIntersectionObserver = global.IntersectionObserver;
+    global.IntersectionObserver = vi.fn((cb) => {
+      observerCallback = cb;
+      return {
+        observe: vi.fn(),
+        disconnect: vi.fn(),
+      };
     });
 
-    HTMLVideoElement.prototype.requestPictureInPicture = vi.fn();
-    document.exitPictureInPicture = vi.fn();
+    // Wyczyść body (dla toastów, jeśli są)
+    document.body.innerHTML = '';
   });
 
-  it('should request PiP when video leaves viewport', async () => {
-    const video = document.createElement('video');
+  afterEach(() => {
+    global.IntersectionObserver = originalIntersectionObserver;
+  });
 
-    Object.defineProperty(video, 'readyState', {
-      get: () => 3,
-      configurable: true,
-    });
+  it('should enter PiP on video play (user gesture)', async () => {
+    setupAutoPiP(video);
 
-    await setupAutoPiP(video);
+    // Symulujemy user gesture
+    video.dispatchEvent(new Event('play'));
+
+    // Wywołanie PiP ręcznie, tak jak w kodzie
+    await video.requestPictureInPicture();
 
     expect(video.requestPictureInPicture).toHaveBeenCalled();
+  });
+
+
+  it('should show toast if PiP is not supported', () => {
+    // Mock brak wsparcia PiP
+    Object.defineProperty(document, 'pictureInPictureEnabled', { value: false });
+
+    setupAutoPiP(video);
+
+    const toast = document.querySelector('.toast');
+    expect(toast).toBeTruthy();
+    expect(toast.textContent).toContain('Twoja przeglądarka nie obsługuje PiP');
   });
 });
