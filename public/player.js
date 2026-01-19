@@ -5,7 +5,6 @@ import { takeSnapshot } from './core/snapshot.js';
 
 const video = document.getElementById('video');
 const videoSection = document.getElementById('video-section');
-const pipButton = document.getElementById('start-pip');
 const snapshotButton = document.getElementById('snapshot');
 
 // --- Lazy Load ---
@@ -19,7 +18,7 @@ setupMediaSession(video, {
 });
 
 // --- Auto PiP ---
-setupAutoPiP(video, pipButton);
+setupAutoPiP(video);
 
 // --- Snapshot ---
 snapshotButton.addEventListener('click', () => {

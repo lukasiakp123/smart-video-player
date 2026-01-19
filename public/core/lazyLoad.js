@@ -1,22 +1,31 @@
 export function setupLazyLoad(video, section, src) {
-  if (!video || !section) {
-    console.warn('setupLazyLoad: video or section element is missing');
+  if (!video || !section || !src) {
+    console.warn('setupLazyLoad: brak wymaganego elementu video, section lub src');
     return;
   }
 
   let loaded = false;
 
   const observer = new IntersectionObserver(
-    ([entry]) => {
+    ([entry], obs) => {
       if (entry.isIntersecting && !loaded) {
-        video.src = src;
-        video.load();
-        loaded = true;
-        observer.disconnect();
+        try {
+          video.src = src;
+          video.load();
+          loaded = true;
+          console.log('🎬 Wideo zostało załadowane (lazy load)');
+          obs.disconnect();
+        } catch (err) {
+          console.error('LazyLoad error:', err);
+        }
       }
     },
-    { rootMargin: '200px' }
+     { rootMargin: '200px 0px 200px 0px' } 
   );
 
-  observer.observe(section);
+  try {
+    observer.observe(section);
+  } catch (err) {
+    console.error('LazyLoad observe error:', err);
+  }
 }
