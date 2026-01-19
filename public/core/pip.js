@@ -1,6 +1,19 @@
 
 export function setupAutoPiP(video) {
-  if (!document.pictureInPictureEnabled) return;
+  if (!document.pictureInPictureEnabled) {    
+    console.error('Twoja przeglądarka nie obsługuje PiP!');
+    showToast('⚠️ Twoja przeglądarka nie obsługuje PiP!');
+    return;
+  }
+
+  function showToast(message) {
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    setTimeout(() => toast.classList.add('show'), 10);
+    setTimeout(() => toast.remove(), 3000);
+  }
 
   const ENTER_RATIO = 0.95;
   const EXIT_RATIO  = 0.60;

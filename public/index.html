@@ -33,6 +33,22 @@
       height: 1400px;
       background: #eee;
     }
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #f44336;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.3);
+      opacity: 0;
+      transition: opacity 0.3s;
+      z-index: 9999;
+    }
+    .toast.show {
+      opacity: 1;
+    }
   </style>
 </head>
 <body>
