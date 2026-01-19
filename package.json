@@ -1,0 +1,9 @@
+{
+  "type": "module",
+  "scripts": {
+    "test": "npx vitest"
+  },
+  "devDependencies": {
+    "vitest": "^1.4.3"
+  }
+}
