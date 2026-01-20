@@ -8,7 +8,6 @@ describe('takeSnapshot', () => {
   let originalCreateElement;
 
   beforeEach(() => {
-    // Mock element video
     mockCtx = {
       drawImage: vi.fn(),
     };
@@ -19,10 +18,8 @@ describe('takeSnapshot', () => {
       toDataURL: vi.fn(() => 'data:image/webp;base64,AAA'),
     };
 
-    // Zachowujemy oryginalne createElement
     originalCreateElement = document.createElement.bind(document);
 
-    // Mock document.createElement tylko dla canvas
     vi.spyOn(document, 'createElement').mockImplementation((tag) => {
       if (tag === 'canvas') return mockCanvas;
       return originalCreateElement(tag);
@@ -34,7 +31,6 @@ describe('takeSnapshot', () => {
   });
 
   it('should return a Blob for ready video', () => {
-    // Tworzymy prawdziwy element video
     video = document.createElement('video');
     Object.defineProperty(video, 'readyState', { get: () => 3 });
     Object.defineProperty(video, 'videoWidth', { get: () => 640 });

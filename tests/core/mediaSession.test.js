@@ -15,18 +15,15 @@ describe('setupMediaSession', () => {
       fastSeek: vi.fn(),
     };
 
-    // Zamockuj console.log
     vi.spyOn(console, 'log').mockImplementation(() => {});
     vi.spyOn(console, 'warn').mockImplementation(() => {});
 
-    // Zamockuj navigator.mediaSession
     originalMediaSession = navigator.mediaSession;
     navigator.mediaSession = {
       metadata: null,
       setActionHandler: vi.fn(),
     };
 
-    // Zamockuj MediaMetadata, bo jsdom nie ma tego API
     originalMediaMetadata = global.MediaMetadata;
     global.MediaMetadata = class {
       constructor(init) {
@@ -36,7 +33,6 @@ describe('setupMediaSession', () => {
   });
 
   afterEach(() => {
-    // Przywróć oryginalne wartości
     navigator.mediaSession = originalMediaSession;
     global.MediaMetadata = originalMediaMetadata;
     vi.restoreAllMocks();
@@ -78,6 +74,4 @@ describe('setupMediaSession', () => {
     expect(video.pause).toHaveBeenCalled();
     expect(console.log).toHaveBeenCalledWith('🎵 MediaSession action: stop');
   });
-
-  // Możesz tu dodać testy dla seekbackward, seekforward, seekto itd.
 });
